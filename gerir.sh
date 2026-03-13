@@ -3,13 +3,10 @@
 DIRETORIA="/opt/overleaf-teste"
 PLAYBOOK="setup-overleaf-teste.yml"
 
-
-
 # Inicia o ciclo infinito
 while true; do
 
 # Limpa o ecrã a cada nova iteração do menu
-clear
 
     echo "========================================================================"
     echo "          GESTOR DO OVERLEAF LOCAL (WSL)             "
@@ -30,10 +27,8 @@ clear
             PRECISA_INSTALAR=false
             
             if command -v ansible &> /dev/null; then
-                # Extrai apenas os primeiros dois digitos da versao (ex: 2.15)
                 VERSAO_ATUAL=$(ansible --version | head -n 1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
                 
-                # Compara as versoes de forma inteligente
                 if [ "$(printf '%s\n' "$VERSAO_MINIMA" "$VERSAO_ATUAL" | sort -V | head -n1)" = "$VERSAO_MINIMA" ]; then
                     echo "[INFO] Ansible detetado com versao compativel ($VERSAO_ATUAL). A saltar instalacao..."
                 else
@@ -53,25 +48,66 @@ clear
                 sudo apt install -y ansible
             fi
             
-            # 3. Verifica se o ambiente ja existe para nao correr o playbook desnecessariamente
-            # Corrigido: movido o bloco para garantir que o Ansible só é chamado se necessário
+            # 3. Provisionamento do ambiente e Injeção de Segurança
             if [ -d "$DIRETORIA" ] && [ -n "$(cd "$DIRETORIA" 2>/dev/null && sudo docker compose ps -a -q 2>/dev/null)" ]; then
                 echo "[AVISO] O ambiente ja se encontra criado e configurado."
                 echo "[AVISO] Por favor, utilize a Opcao 2 para o iniciar."
             else
-                echo "[INFO] A iniciar o provisionamento do ambiente..."
                 if [ -f "$PLAYBOOK" ]; then
-                    # Executa o playbook com o formato de output limpo (debug)
-                    sudo ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK"
+                    
+                    # ---------------------------------------------------------
+                    # MAGIA DA SEGURANÇA: Pedir a password ao utilizador
+                    # ---------------------------------------------------------
+                    echo ""
+                    echo "[SEGURANCA] Vamos configurar a tua conta de Administrador."
+                    ADMIN_EMAIL="admin@overleaf.pt"
+                    
+                    # O loop garante que a pessoa não se engana a escrever às cegas
+                    while true; do
+                        read -s -p "🔑 Digita a password que desejas (nao vai aparecer no ecra): " ADMIN_PASS
+                        echo ""
+                        read -s -p "🔑 Confirma a password: " ADMIN_PASS_CONFIRM
+                        echo ""
+                        
+                        if [ "$ADMIN_PASS" = "$ADMIN_PASS_CONFIRM" ] && [ -n "$ADMIN_PASS" ]; then
+                            echo "[SUCESSO] Passwords coincidem!"
+                            break
+                        else
+                            echo "[ERRO] As passwords nao coincidem ou estao vazias. Tenta novamente."
+                        fi
+                    done
+                    # ---------------------------------------------------------
+
+                    echo "[INFO] A iniciar a instalacao e a encriptar as tuas credenciais..."
+                    if sudo ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS"; then
+                        
+                        clear
+                        echo "========================================================================"
+                        echo " 🎉 OVERLEAF INSTALADO COM SUCESSO! 🎉"
+                        echo "========================================================================"
+                        echo " O teu ambiente esta pronto e totalmente seguro."
+                        echo ""
+                        echo " DADOS DE ACESSO:"
+                        echo " Link:     http://localhost:8085"
+                        echo " Email:    $ADMIN_EMAIL"
+                        echo " Password: [A que definiste no passo anterior]"
+                        echo "========================================================================"
+                        
+                        # Limpa a variável da memória RAM por precaução
+                        ADMIN_PASS=""
+                        ADMIN_PASS_CONFIRM=""
+                    else
+                        echo "[ERRO] A instalacao do Ansible falhou. Verifica os logs acima."
+                    fi
                 else
                     echo "[ERRO] O ficheiro '$PLAYBOOK' nao foi encontrado na diretoria atual."
                 fi
             fi
+            break;
             ;;
         2)
             if [ -d "$DIRETORIA" ]; then
                 cd "$DIRETORIA"
-                # Verifica se existem contentores criados (mesmo que parados) para este projeto
                 if [ -n "$(sudo docker compose ps -a -q)" ]; then
                     echo "[INFO] A iniciar os contentores existentes..."
                     sudo docker compose start
@@ -85,7 +121,6 @@ clear
             fi
             ;;
         3)
-            # Verifica se a diretoria existe E se os contentores existem
             if [ -d "$DIRETORIA" ] && [ -n "$(cd "$DIRETORIA" 2>/dev/null && sudo docker compose ps -a -q 2>/dev/null)" ]; then
                 echo "[INFO] A parar os contentores. Os dados serao preservados..."
                 cd "$DIRETORIA" && sudo docker compose stop
@@ -97,8 +132,6 @@ clear
         4)
             if [ -d "$DIRETORIA" ]; then
                 cd "$DIRETORIA"
-                
-                # Verifica se há contentores para destruir
                 if [ -n "$(sudo docker compose ps -a -q 2>/dev/null)" ]; then
                     echo "[INFO] A remover os contentores do sistema..."
                     sudo docker compose down
@@ -106,7 +139,6 @@ clear
                     echo "[INFO] Nao existem contentores a correr para remover."
                 fi
                 
-                # Verifica se existe base de dados para perguntar se quer apagar
                 if [ -d "data/" ]; then
                     read -p "[PERGUNTA] Deseja apagar permanentemente a base de dados e os projetos? (s/n): " resposta_apagar
                     if [[ "$resposta_apagar" =~ ^[sS]$ ]]; then
@@ -129,11 +161,7 @@ clear
             exit 0
             ;;
         *)
-            echo "[ERRO] Opcao invalida. Por favor, selecione uma opcao de 0 a 4, ou escreva 'sair'."
+            echo "[ERRO] Opcao invalida. Por favor, selecione uma opcao de 0 a 4,."
             ;;
     esac
-
-    # Pausa antes de limpar o ecrã e voltar ao início do ciclo
-    echo ""
-    read -p "Pressione [ENTER] para voltar ao menu..."
 done

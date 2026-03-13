@@ -7,9 +7,8 @@
   vars:
     diretoria_teste: /opt/overleaf-teste
     porta_teste: "8085"
-    # Definicao da conta de administrador padrao
-    email_padrao: "admin@meu-projeto.pt"
-    password_padrao: "admin123"
+    # NOTA: O email_padrao e password_padrao já não estão aqui.
+    # São injetados na memória diretamente pelo script gerir.sh!
 
   tasks:
     - name: 0.1. Instalar dependencias previas para o Docker
@@ -29,7 +28,7 @@
         state: directory
         mode: '0755'
 
-    - name: 0.2.1. Descarregar a chave GPG oficial do Docker (Metodo Moderno)
+    - name: 0.2.1. Descarregar a chave GPG oficial do Docker
       get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/keyrings/docker.asc
@@ -82,7 +81,7 @@
               volumes:
                 - ./data/redis:/data
             sharelatex:
-              build .
+              build: .
               image: o-meu-overleaf-isec
               container_name: sharelatex-teste
               restart: always
@@ -113,7 +112,6 @@
     - name: 5. Criar a conta de administrador no sistema
       command: docker exec sharelatex-teste grunt user:create-admin --email={{ email_padrao }}
       register: criacao
-      # Valida o sucesso do comando ou verifica se o utilizador ja se encontra registado
       until: criacao.rc == 0 or 'already exists' in criacao.stdout | default('') or 'already exists' in criacao.stderr | default('')
       retries: 5
       delay: 10
@@ -150,18 +148,6 @@
           }
         })();'
       register: injecao
-      # Executa iterativamente o script Node.js ate a confirmacao de sucesso (rc == 0)
       until: injecao.rc == 0
       retries: 5
       delay: 10
-
-    - name: 7. Resumo da Instalacao
-      debug:
-        msg: |
-          ==================================================
-          AMBIENTE OVERLEAF CONFIGURADO COM SUCESSO
-          ==================================================
-          URL de Acesso: http://localhost:8085
-          Email:         {{ email_padrao }}
-          Password:      {{ password_padrao }}
-          ==================================================
