@@ -1,0 +1,167 @@
+---
+- name: Setup Overleaf - Ambiente Local Isolado
+  hosts: localhost
+  connection: local
+  become: yes
+
+  vars:
+    diretoria_teste: /opt/overleaf-teste
+    porta_teste: "8085"
+    # Definicao da conta de administrador padrao
+    email_padrao: "admin@meu-projeto.pt"
+    password_padrao: "admin123"
+
+  tasks:
+    - name: 0.1. Instalar dependencias previas para o Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: 0.2. Garantir que a pasta de chaves de seguranca existe
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: 0.2.1. Descarregar a chave GPG oficial do Docker (Metodo Moderno)
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+        force: true
+
+    - name: 0.3. Adicionar o repositorio oficial do Docker
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
+        state: present
+        filename: docker
+
+    - name: 0.4. Instalar o motor Docker e o Docker Compose Plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+        
+    - name: 1. Criar a diretoria base para o ambiente
+      file:
+        path: "{{ diretoria_teste }}"
+        state: directory
+        mode: '0755'
+
+    - name: 2. Gerar o ficheiro docker-compose.yml
+      copy:
+        dest: "{{ diretoria_teste }}/docker-compose.yml"
+        content: |
+          services:
+            mongo:
+              image: mongo:8.0
+              restart: always
+              command: "--replSet overleaf"
+              volumes:
+                - ./data/mongo:/data/db
+              healthcheck:
+                test: >
+                  echo 'try { rs.status() } catch (err) { rs.initiate({_id: "overleaf", members: [{ _id: 0, host: "mongo:27017" }]}) }' | mongosh --quiet
+                interval: 10s
+                timeout: 10s
+                retries: 5
+                start_period: 20s
+            redis:
+              image: redis:6
+              restart: always
+              volumes:
+                - ./data/redis:/data
+            sharelatex:
+              build .
+              image: o-meu-overleaf-isec
+              container_name: sharelatex-teste
+              restart: always
+              ports:
+                - "{{ porta_teste }}:80"
+              environment:
+                OVERLEAF_MONGO_URL: mongodb://mongo:27017/overleaf?replicaSet=overleaf
+                OVERLEAF_REDIS_HOST: redis
+                REDIS_HOST: redis
+                OVERLEAF_APP_NAME: Overleaf de Teste
+              depends_on:
+                mongo:
+                  condition: service_healthy
+                redis:
+                  condition: service_started
+              volumes:
+                - ./data/sharelatex:/var/lib/overleaf
+
+    - name: 3. Iniciar os contentores via Docker Compose
+      command: docker compose up -d
+      args:
+        chdir: "{{ diretoria_teste }}"
+
+    - name: 4. Aguardar a inicializacao dos servicos de base de dados (20 segundos)
+      pause:
+        seconds: 20
+
+    - name: 5. Criar a conta de administrador no sistema
+      command: docker exec sharelatex-teste grunt user:create-admin --email={{ email_padrao }}
+      register: criacao
+      # Valida o sucesso do comando ou verifica se o utilizador ja se encontra registado
+      until: criacao.rc == 0 or 'already exists' in criacao.stdout | default('') or 'already exists' in criacao.stderr | default('')
+      retries: 5
+      delay: 10
+      ignore_errors: true
+
+    - name: 6. Configurar a palavra-passe do administrador na base de dados
+      shell: >
+        docker exec -w /overleaf/services/web sharelatex-teste node -e '
+        const bcrypt = require("bcrypt");
+        const { MongoClient } = require("mongodb");
+        (async function() {
+          let client;
+          try {
+            const hash = await bcrypt.hash("{{ password_padrao }}", 10);
+            client = await MongoClient.connect("mongodb://mongo:27017/overleaf");
+            const db = client.db("overleaf");
+            
+            const result = await db.collection("users").updateOne(
+              { email: "{{ email_padrao }}" }, 
+              { $set: { hashedPassword: hash } }
+            );
+            
+            if (result.matchedCount === 0) {
+              console.error("[ERRO] O utilizador ainda nao existe na base de dados. A tentar novamente...");
+              process.exit(1);
+            }
+            
+            console.log("[SUCESSO] Palavra-passe configurada com sucesso.");
+          } catch(e) {
+            console.error("[ERRO] Falha na ligacao ao MongoDB:", e);
+            process.exit(1);
+          } finally {
+            if (client) await client.close();
+          }
+        })();'
+      register: injecao
+      # Executa iterativamente o script Node.js ate a confirmacao de sucesso (rc == 0)
+      until: injecao.rc == 0
+      retries: 5
+      delay: 10
+
+    - name: 7. Resumo da Instalacao
+      debug:
+        msg: |
+          ==================================================
+          AMBIENTE OVERLEAF CONFIGURADO COM SUCESSO
+          ==================================================
+          URL de Acesso: http://localhost:8085
+          Email:         {{ email_padrao }}
+          Password:      {{ password_padrao }}
+          ==================================================
