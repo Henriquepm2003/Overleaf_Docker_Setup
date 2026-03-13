@@ -56,4 +56,4 @@ O que o Dockerfile faz:
 Assim, sempre que reinicias ou destróis o contentor, a compilação de PDFs no teu PC é instantânea, offline e à prova de falhas! Para gerires o estado do 
 servidor no dia a dia, basta correr o ./gerir.sh e usar as opções de Iniciar (2) ou Parar (3).
 
-!!!CUIDADO!!! Ao correr a opção 4, o projeto está feito para resistir á opção 4, se escolher não eliminar a base de dados, se por alguma razão decidir eliminar a BD e ainda tiver projetos criticios e importantes dentro do projeto, boa sorte XD
+!!!CUIDADO!!! Ao correr a opção 4, o projeto está feito para resistir á opção 4, se escolher não eliminar a base de dados.Se por alguma razão decidir eliminar a BD e ainda tiver projetos criticios e importantes dentro do projeto, boa sorte XD
