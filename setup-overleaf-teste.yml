@@ -7,50 +7,12 @@
   vars:
     diretoria_teste: /opt/overleaf-teste
     porta_teste: "8085"
-    # NOTA: O email_padrao e password_padrao já não estão aqui.
-    # São injetados na memória diretamente pelo script gerir.sh!
+
+  # A MAGIA ESTÁ AQUI: O Ansible chama o Geerlingguy e ele instala o Docker sozinho!
+  roles:
+    - role: geerlingguy.docker
 
   tasks:
-    - name: 0.1. Instalar dependencias previas para o Docker
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-          - lsb-release
-        state: present
-        update_cache: yes
-
-    - name: 0.2. Garantir que a pasta de chaves de seguranca existe
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-
-    - name: 0.2.1. Descarregar a chave GPG oficial do Docker
-      get_url:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker.asc
-        mode: '0644'
-        force: true
-
-    - name: 0.3. Adicionar o repositorio oficial do Docker
-      apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable"
-        state: present
-        filename: docker
-
-    - name: 0.4. Instalar o motor Docker e o Docker Compose Plugin
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose-plugin
-        state: present
-        update_cache: yes
-        
     - name: 1. Criar a diretoria base para o ambiente
       file:
         path: "{{ diretoria_teste }}"
@@ -100,12 +62,17 @@
               volumes:
                 - ./data/sharelatex:/var/lib/overleaf
 
+    - name: 2.5. Copiar o Dockerfile para a diretoria do ambiente
+      copy:
+        src: "Dockerfile"
+        dest: "{{ diretoria_teste }}/Dockerfile"
+
     - name: 3. Iniciar os contentores via Docker Compose
       command: docker compose up -d
       args:
         chdir: "{{ diretoria_teste }}"
 
-    - name: 4. Aguardar a inicializacao dos servicos de base de dados (20 segundos)
+    - name: 4. Aguardar a inicializacao da base de dados (20 segundos)
       pause:
         seconds: 20
 
@@ -128,20 +95,17 @@
             const hash = await bcrypt.hash("{{ password_padrao }}", 10);
             client = await MongoClient.connect("mongodb://mongo:27017/overleaf");
             const db = client.db("overleaf");
-            
             const result = await db.collection("users").updateOne(
               { email: "{{ email_padrao }}" }, 
               { $set: { hashedPassword: hash } }
             );
-            
             if (result.matchedCount === 0) {
-              console.error("[ERRO] O utilizador ainda nao existe na base de dados. A tentar novamente...");
+              console.error("[ERRO] Utilizador nao encontrado.");
               process.exit(1);
             }
-            
-            console.log("[SUCESSO] Palavra-passe configurada com sucesso.");
+            console.log("[SUCESSO] Palavra-passe configurada.");
           } catch(e) {
-            console.error("[ERRO] Falha na ligacao ao MongoDB:", e);
+            console.error("[ERRO] Falha no MongoDB:", e);
             process.exit(1);
           } finally {
             if (client) await client.close();
