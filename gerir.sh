@@ -3,6 +3,27 @@
 DIRETORIA="/opt/overleaf-teste"
 PLAYBOOK="setup-overleaf-teste.yml"
 
+# ----------------------------------------------------------------------
+# PROGRAMAÇÃO DEFENSIVA: Impedir a execução no disco do Windows (NTFS)
+# ----------------------------------------------------------------------
+if [[ "$PWD" == *"/mnt/c/"* ]] || [[ "$PWD" == *"/mnt/d/"* ]]; then
+    clear
+    echo "========================================================================"
+    echo " [ERRO FATAL] DETETADA EXECUÇÃO NO DISCO DO WINDOWS"
+    echo "========================================================================"
+    echo " Estas a tentar correr o projeto dentro de $PWD."
+    echo " O Docker e o MongoDB vao falhar porque o Windows nao suporta"
+    echo " as permissoes estritas de ficheiros do Linux."
+    echo ""
+    echo " [SOLUCAO]:"
+    echo " 1. Lê o manual"
+    echo " 2. Escreve o comando: cd ~"
+    echo " 3. Clona o repositorio novamente nessa pasta limpa."
+    echo " 4. Corre o script a partir dai."
+    echo "========================================================================"
+    exit 1
+fi
+
 # Inicia o ciclo infinito
 while true; do
 
@@ -41,10 +62,19 @@ while true; do
                 PRECISA_INSTALAR=true
             fi
 
-            # 2. Instalação limpa e universal (Debian/Ubuntu)
+            # 2. Instalação Universal (Deteta a distribuição automaticamente)
             if [ "$PRECISA_INSTALAR" = true ]; then
-                echo "[INFO] A instalar dependencias (Git, Curl, Ansible)..."
-                sudo apt update && sudo apt install -y git curl ansible
+                echo "[INFO] A detetar o gestor de pacotes do sistema..."
+                if command -v apt &> /dev/null; then
+                    sudo apt update && sudo apt install -y git curl ansible
+                elif command -v dnf &> /dev/null; then
+                    sudo dnf install -y git curl ansible
+                elif command -v pacman &> /dev/null; then
+                    sudo pacman -Sy --noconfirm git curl ansible
+                else
+                    echo "[ERRO] Sistema operativo nao suportado para instalacao automatica."
+                    exit 1
+                fi
             fi
             
             # 2.5. Garantir que a Role de automação do Docker está instalada

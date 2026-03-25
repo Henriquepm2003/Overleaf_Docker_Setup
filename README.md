@@ -58,3 +58,16 @@ O que o Dockerfile faz:
 Assim, sempre que reinicias ou destróis o contentor, a compilação de PDFs no teu PC é instantânea, offline e à prova de falhas! Para gerires o estado do servidor no dia a dia, basta correr o ./gerir.sh e usar as opções (2) Iniciar  ou (3) Parar, sempre que ligares ou desligares o PC.
 
 !!!CUIDADO!!! A quem estiver a ler isto, se quiseres correr a opção 4 e escolheres não eliminar a base de dados, o projeto está feito para resistir a esta opção. Foram utilizados volumes para prevenir que base de dados ou algum container indo abaixo não perderem a memória. Se por alguma razão decidires eliminar a base de dados e ainda tiver projetos críticos e importantes dentro do overleaf que não guardaste, boa sorte XD
+
+Resolução de Problemas (Troubleshooting)
+
+Corri a instalação toda com sucesso, mas o link `http://localhost:8085` não abre!
+
+Isso não é um erro do projeto, é uma falha crónica do próprio WSL do Windows, que às vezes se "esquece" de ligar a rede do Linux ao teu browser do Windows. 
+
+Como resolver em 5 segundos:
+1 - Abre um terminal do WSL (Debian/Ubuntu).
+2 - Escreve o comando: `hostname -I` (vai cuspir um número de IP, ex: `172.x.x.x`).
+3 - Copia o primeiro IP que aparecer.
+4 - Vai ao teu browser e em vez de `localhost`, usa esse IP. Exemplo: `http://172.25.10.5:8085`.
+5 - O teu Overleaf vai abrir instantaneamente!
