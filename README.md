@@ -6,16 +6,19 @@ utilizando WSL, Ansible e Docker. Ideal para compilar relatórios sem falhas de 
 Fase 1: Pré-requisitos (Preparar o PC)
 O projeto automatiza quase tudo, mas precisas do ambiente Linux base para correr os scripts.
 
-1 - Ativar o WSL (Ubuntu no Windows):
-    Abre o PowerShell como Administrador e executa: wsl --install
+1 - Ativar o WSL (Debian no Windows):
+    Abre o PowerShell como Administrador e executa: wsl --install -d Debian (usamos o Debian por ser incrivelmente mais leve e rápido que o Ubuntu padrão)
 2 - Reinicia o computador.
 3 - Editor de Código (Recomendado): Instala o Visual Studio Code com a extensão "WSL" para gerires os ficheiros facilmente.
+4 - Instalar o Git (o Debian é tão leve que nem traz git de origem)
+    cd ~
+    sudo apt update && sudo apt install -y git
 
 
 Fase 2: Instalação Automática (A Infraestrutura)
 Toda a instalação do Docker, dependências e criação dos contentores é gerida automaticamente pelo script e pelo Ansible.
 
-1 - Abre o terminal do Ubuntu (WSL).
+1 - Abre o terminal do Debian (WSL).
 2 - Descarrega este repositório para o teu computador:
   git clone https://github.com/Henriquepm2003/Overleaf_Docker_Setup
   cd Overleaf_Docker_Setup
@@ -52,7 +55,6 @@ O que o Dockerfile faz:
 3 - Instala o pacote nuclear scheme-full (cerca de 4GB de dependências).
 4 - "Congela" tudo numa nova imagem Docker local.
 
-Assim, sempre que reinicias ou destróis o contentor, a compilação de PDFs no teu PC é instantânea, offline e à prova de falhas! Para gerires o estado do servidor no dia a dia, basta correr o ./gerir.sh e usar as opções de 
-Iniciar (2) ou Parar (3).
+Assim, sempre que reinicias ou destróis o contentor, a compilação de PDFs no teu PC é instantânea, offline e à prova de falhas! Para gerires o estado do servidor no dia a dia, basta correr o ./gerir.sh e usar as opções (2) Iniciar  ou (3) Parar, sempre que ligares ou desligares o PC.
 
-!!!CUIDADO!!! Ao correr a opção 4, o projeto está feito para resistir á opção 4, se escolher não eliminar a base de dados.Se por alguma razão decidir eliminar a base de dados e ainda tiver projetos criticios e importantes dentro do overleaf que não guardou, boa sorte XD
+!!!CUIDADO!!! A quem estiver a ler isto, se quiseres correr a opção 4 e escolheres não eliminar a base de dados, o projeto está feito para resistir a esta opção. Foram utilizados volumes para prevenir que base de dados ou algum container indo abaixo não perderem a memória. Se por alguma razão decidires eliminar a base de dados e ainda tiver projetos críticos e importantes dentro do overleaf que não guardaste, boa sorte XD
