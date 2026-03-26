@@ -8,18 +8,20 @@
     diretoria_teste: /opt/overleaf-teste
     porta_teste: "8085"
 
-  # A MAGIA ESTÁ AQUI: O Ansible chama o Geerlingguy e ele instala o Docker sozinho!
   roles:
     - role: geerlingguy.docker
+      tags: ['pre-build']
 
   tasks:
     - name: 1. Criar a diretoria base para o ambiente
+      tags: ['pre-build']
       file:
         path: "{{ diretoria_teste }}"
         state: directory
         mode: '0755'
 
     - name: 2. Gerar o ficheiro docker-compose.yml
+      tags: ['pre-build']
       copy:
         dest: "{{ diretoria_teste }}/docker-compose.yml"
         content: |
@@ -63,20 +65,24 @@
                 - ./data/sharelatex:/var/lib/overleaf
 
     - name: 2.5. Copiar o Dockerfile para a diretoria do ambiente
+      tags: ['pre-build']
       copy:
         src: "Dockerfile"
         dest: "{{ diretoria_teste }}/Dockerfile"
 
     - name: 3. Iniciar os contentores via Docker Compose
+      tags: ['post-build']
       command: docker compose up -d
       args:
         chdir: "{{ diretoria_teste }}"
 
     - name: 4. Aguardar a inicializacao da base de dados (20 segundos)
+      tags: ['post-build']
       pause:
         seconds: 20
 
     - name: 5. Criar a conta de administrador no sistema
+      tags: ['post-build']
       command: docker exec sharelatex-teste grunt user:create-admin --email={{ email_padrao }}
       register: criacao
       until: criacao.rc == 0 or 'already exists' in criacao.stdout | default('') or 'already exists' in criacao.stderr | default('')
@@ -85,6 +91,7 @@
       ignore_errors: true
 
     - name: 6. Configurar a palavra-passe do administrador na base de dados
+      tags: ['post-build']
       shell: >
         docker exec -w /overleaf/services/web sharelatex-teste node -e '
         const bcrypt = require("bcrypt");

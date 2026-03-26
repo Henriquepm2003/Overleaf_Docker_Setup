@@ -109,28 +109,53 @@ while true; do
                     done
 
                     echo "[INFO] A iniciar a instalacao segura..."
-                    
-                    # Variável de ambiente (escondida de possíveis bisbilhoteiros no sistema)
                     export ADMIN_PASS_ENV="$ADMIN_PASS"
+                    ORIGINAL_DIR=$(pwd)
                     
-                    # A flag -E no sudo permite passar a variável de ambiente para dentro da execução
-                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                    # PASSO 1: O Ansible prepara o Docker e os ficheiros em silêncio
+                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "pre-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
                         
+                        # PASSO 2: O Bash assume o controlo para o "Show ao Vivo"
+                        echo ""
                         echo "========================================================================"
-                        echo " 🎉 OVERLEAF INSTALADO COM SUCESSO! 🎉"
-                        echo "========================================================================"
-                        echo " Link:     http://localhost:8085"
-                        echo " Email:    $ADMIN_EMAIL"
-                        echo " Password: [A que definiste no passo anterior]"
+                        echo " A DESCARREGAR A BOMBA ATÓMICA (LATEX)"
+                        echo " Vai começar o espetáculo! Podes ver os pacotes em tempo real."
                         echo "========================================================================"
                         
-                        # Limpa as variáveis da RAM por segurança
-                        ADMIN_PASS=""
-                        ADMIN_PASS_CONFIRM=""
-                        export ADMIN_PASS_ENV=""
+                        cd "$DIRETORIA"
+                        # Este comando corre nativamente, logo o utilizador vê a barra de progresso!
+                        if sudo docker compose build; then
+                            cd "$ORIGINAL_DIR"
+                            
+                            # PASSO 3: O Ansible regressa para arrancar tudo e injetar a password
+                            echo ""
+                            echo "[INFO] Build concluído com sucesso! A arrancar contentores e configurar a base de dados..."
+                            if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "post-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                                
+                                clear
+                                echo "========================================================================"
+                                echo " OVERLEAF INSTALADO COM SUCESSO!"
+                                echo "========================================================================"
+                                echo " Link:     http://localhost:8085"
+                                echo " Email:    $ADMIN_EMAIL"
+                                echo " Password: [A que definiste no passo anterior]"
+                                echo "========================================================================"
+                                
+                            else
+                                echo "[ERRO] A fase final de arranque e configuracao falhou."
+                            fi
+                        else
+                            echo "[ERRO] A compilacao da imagem do Docker falhou."
+                            cd "$ORIGINAL_DIR"
+                        fi
                     else
-                        echo "[ERRO] A instalacao falhou. Verifica os logs."
+                        echo "[ERRO] A preparacao inicial do Ansible falhou."
                     fi
+                    
+                    # Limpeza de segurança da RAM
+                    ADMIN_PASS=""
+                    ADMIN_PASS_CONFIRM=""
+                    export ADMIN_PASS_ENV=""
                 else
                     echo "[ERRO] O ficheiro '$PLAYBOOK' nao foi encontrado!"
                 fi
@@ -141,7 +166,7 @@ while true; do
                 cd "$DIRETORIA"
                 if [ -n "$(sudo docker compose ps -a -q)" ]; then
                     echo "[INFO] A iniciar os contentores existentes..."
-                    sudo docker compose start
+                    sudo docker compose up -d
                     echo "[SUCESSO] Ambiente online em: http://localhost:8085"
                 else
                     echo "[AVISO] Os contentores nao existem. Execute a Opcao 1."
