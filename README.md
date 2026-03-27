@@ -33,7 +33,7 @@ Toda a instalação do Docker, dependências e criação dos contentores é geri
 
 2 Descarrega este repositório para o teu computador e entra na pasta:
 
-   git clone [https://github.com/Henriquepm2003/Overleaf_Docker_Setup]
+   git clone https://github.com/Henriquepm2003/Overleaf_Docker_Setup
 
    cd Overleaf_Docker_Setup
 
