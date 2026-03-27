@@ -95,9 +95,9 @@ while true; do
                     ADMIN_EMAIL="admin@overleaf.pt"
                     
                     while true; do
-                        read -s -p "🔑 Digita a password que desejas (invisivel): " ADMIN_PASS
+                        read -s -p "Digita a password que desejas (invisivel): " ADMIN_PASS
                         echo ""
-                        read -s -p "🔑 Confirma a password: " ADMIN_PASS_CONFIRM
+                        read -s -p "Confirma a password: " ADMIN_PASS_CONFIRM
                         echo ""
                         
                         if [ "$ADMIN_PASS" = "$ADMIN_PASS_CONFIRM" ] && [ -n "$ADMIN_PASS" ]; then
@@ -118,7 +118,7 @@ while true; do
                         # PASSO 2: O Bash assume o controlo para o "Show ao Vivo"
                         echo ""
                         echo "========================================================================"
-                        echo " 🚀 A TRANSFERIR IMAGEM PRÉ-COMPILADA DO DOCKER HUB 🚀"
+                        echo " A TRANSFERIR IMAGEM PRÉ-COMPILADA DO DOCKER HUB "
                         echo " Instalação ultra-rápida. A transferir pacotes do Overleaf..."
                         echo "========================================================================"
                         
