@@ -118,13 +118,13 @@ while true; do
                         # PASSO 2: O Bash assume o controlo para o "Show ao Vivo"
                         echo ""
                         echo "========================================================================"
-                        echo " A DESCARREGAR A BOMBA ATÓMICA (LATEX)"
-                        echo " Vai começar o espetáculo! Podes ver os pacotes em tempo real."
+                        echo " 🚀 A TRANSFERIR IMAGEM PRÉ-COMPILADA DO DOCKER HUB 🚀"
+                        echo " Instalação ultra-rápida. A transferir pacotes do Overleaf..."
                         echo "========================================================================"
                         
                         cd "$DIRETORIA"
-                        # Este comando corre nativamente, logo o utilizador vê a barra de progresso!
-                        if sudo docker compose build; then
+                        # Este comando transfere a imagem gigante da net em poucos minutos!
+                        if sudo docker compose pull; then
                             cd "$ORIGINAL_DIR"
                             
                             # PASSO 3: O Ansible regressa para arrancar tudo e injetar a password

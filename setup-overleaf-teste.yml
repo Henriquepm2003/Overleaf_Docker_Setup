@@ -45,8 +45,7 @@
               volumes:
                 - ./data/redis:/data
             sharelatex:
-              build: .
-              image: o-meu-overleaf-isec
+              image: henriquepmarques/overleaf_local:isec-v1
               container_name: sharelatex-teste
               restart: always
               ports:
@@ -63,12 +62,6 @@
                   condition: service_started
               volumes:
                 - ./data/sharelatex:/var/lib/overleaf
-
-    - name: 2.5. Copiar o Dockerfile para a diretoria do ambiente
-      tags: ['pre-build']
-      copy:
-        src: "Dockerfile"
-        dest: "{{ diretoria_teste }}/Dockerfile"
 
     - name: 3. Iniciar os contentores via Docker Compose
       tags: ['post-build']
