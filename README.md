@@ -7,12 +7,18 @@ Fase 1: Pré-requisitos (Preparar o PC)
 O projeto automatiza quase tudo, mas precisas do ambiente Linux base para correr os scripts.
 
 1  Ativar o WSL (Debian no Windows):
+
    Abre o PowerShell como Administrador e executa:
+
    wsl --install -d Debian
+   
    (Usamos o Debian por ser incrivelmente mais leve e rápido que o Ubuntu padrão, se quiseres usar outra distribuição, o projeto
    está preparado para funcionar com várias).
+
 2  Reinicia o computador (se necessário).
+
 3  Editor de Código (Não é necessário, só se quiser ver o código por trás): Instala o Visual Studio Code com a extensão "WSL" para        gerires os ficheiros facilmente.
+
 4  Instalar o Git: (o Debian é tão leve que nem traz git de origem). No terminal corre:
 
 cd ~
