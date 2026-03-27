@@ -40,7 +40,7 @@ while true; do
     echo "4) Destruir (Remove contentores e/ou base de dados)"
     echo "0) Sair"
     echo "========================================================================="
-    read -p "Opcao: " opcao
+    read -p "Opcao: " opcao 
 
     case $opcao in
         1)

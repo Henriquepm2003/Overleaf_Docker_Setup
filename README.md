@@ -72,7 +72,7 @@ Para começares a trabalhar no teu relatório com as normas corretas:
 Para gerires o estado do servidor no dia a dia, basta correr o ./gerir.sh e usar as opções (2) Iniciar ou (3) Parar, sempre que ligares ou desligares o PC.
 
 🚨 !!! CUIDADO !!! 🚨
-A quem estiver a ler isto: se quiseres correr a Opção 4 e escolheres não eliminar a base de dados, o projeto está feito para resistir a esta opção. Foram utilizados volumes para prevenir que a base de dados ou algum container indo abaixo perca a memória.
+A quem estiver a ler isto: se quiseres correr a opção 4 e escolheres não eliminar a base de dados, o projeto está feito para resistir a esta opção. Foram utilizados volumes para prevenir que a base de dados ou algum container indo abaixo perca a memória.
 Se por alguma razão decidires eliminar a base de dados e ainda tiveres projetos críticos e importantes dentro do overleaf que não guardaste... boa sorte XD
 
 
