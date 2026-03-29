@@ -29,23 +29,21 @@ Fase 2: Instalação Automática (A Infraestrutura)
 
 Toda a instalação do Docker, dependências e criação dos contentores é gerida automaticamente pelo script e pelo Ansible.
 
-1 Abre o terminal (WSL).
-
-2 Descarrega este repositório para o teu computador e entra na pasta:
+1 No terminal (WSL), descarrega este repositório para o teu computador e entra na pasta:
 
    git clone https://github.com/Henriquepm2003/Overleaf_Docker_Setup
 
    cd Overleaf_Docker_Setup
 
-3 Dá permissão de execução ao gestor principal:
+2 Dá permissão de execução ao gestor principal:
 
 chmod +x gerir.sh
 
-4 Inicia a instalação:
+3 Inicia a instalação:
 
 ./gerir.sh
 
-5 Seleciona a Opção 1 (Instalar / Criar do Zero).
+4 Seleciona a Opção 1 (Instalar / Criar do Zero).
 
 Nota: O script vai instalar o Ansible, o Docker e fazer o build da imagem do Overleaf. Este processo pode demorar algum tempo, pois vai buscar a imagem do DockerHub com a instalação completa do LaTeX.
 
