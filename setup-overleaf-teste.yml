@@ -7,6 +7,7 @@
   vars:
     diretoria_teste: /opt/overleaf-teste
     porta_teste: "8085"
+    password_padrao: "{{ lookup('env', 'ADMIN_PASS_ENV') }}"
 
   roles:
     - role: geerlingguy.docker

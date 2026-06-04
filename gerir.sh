@@ -113,7 +113,7 @@ while true; do
                     ORIGINAL_DIR=$(pwd)
                     
                     # PASSO 1: O Ansible prepara o Docker e os ficheiros em silêncio
-                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "pre-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "pre-build" --extra-vars "email_padrao=$ADMIN_EMAIL"; then
                         
                         # PASSO 2: O Bash assume o controlo para o "Show ao Vivo"
                         echo ""
@@ -130,7 +130,7 @@ while true; do
                             # PASSO 3: O Ansible regressa para arrancar tudo e injetar a password
                             echo ""
                             echo "[INFO] Build concluído com sucesso! A arrancar contentores e configurar a base de dados..."
-                            if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "post-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                            if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "post-build" --extra-vars "email_padrao=$ADMIN_EMAIL"; then
                                 
                                 clear
                                 echo "========================================================================"
