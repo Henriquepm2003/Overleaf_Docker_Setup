@@ -2,6 +2,7 @@
 
 DIRETORIA="/opt/overleaf-teste"
 PLAYBOOK="setup-overleaf-teste.yml"
+DIRETORIA_ORIGINAL=$(pwd)
 
 # ----------------------------------------------------------------------
 # PROGRAMAÇÃO DEFENSIVA: Impedir a execução no disco do Windows (NTFS)
@@ -171,6 +172,7 @@ while true; do
                 else
                     echo "[AVISO] Os contentores nao existem. Execute a Opcao 1."
                 fi
+                cd "$DIRETORIA_ORIGINAL"
             else
                 echo "[AVISO] Ambiente nao criado. Execute a Opcao 1."
             fi
@@ -183,6 +185,8 @@ while true; do
             else
                 echo "[AVISO] Nao existem contentores ativos para parar."
             fi
+
+            cd "$DIRETORIA_ORIGINAL"
             ;;
         4)
             if [ -d "$DIRETORIA" ]; then
@@ -208,6 +212,8 @@ while true; do
             else
                 echo "[AVISO] Ambiente ja removido ou nunca criado."
             fi
+
+            cd "$DIRETORIA_ORIGINAL"
             ;;
         0)
             echo "[INFO] A encerrar o gestor. Ate ja."

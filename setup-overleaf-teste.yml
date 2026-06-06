@@ -85,34 +85,34 @@
       ignore_errors: true
 
     - name: 6. Configurar a palavra-passe do administrador na base de dados
-      tags: ['post-build']
-      shell: >
-        docker exec -w /overleaf/services/web sharelatex-teste node -e '
-        const bcrypt = require("bcrypt");
-        const { MongoClient } = require("mongodb");
-        (async function() {
-          let client;
-          try {
-            const hash = await bcrypt.hash("{{ password_padrao }}", 10);
-            client = await MongoClient.connect("mongodb://mongo:27017/overleaf");
-            const db = client.db("overleaf");
-            const result = await db.collection("users").updateOne(
-              { email: "{{ email_padrao }}" }, 
-              { $set: { hashedPassword: hash } }
-            );
-            if (result.matchedCount === 0) {
-              console.error("[ERRO] Utilizador nao encontrado.");
-              process.exit(1);
-            }
-            console.log("[SUCESSO] Palavra-passe configurada.");
-          } catch(e) {
-            console.error("[ERRO] Falha no MongoDB:", e);
-            process.exit(1);
-          } finally {
-            if (client) await client.close();
-          }
-        })();'
-      register: injecao
-      until: injecao.rc == 0
-      retries: 5
-      delay: 10
+          tags: ['post-build']
+          shell: >
+            docker exec -e TEMP_PASS="{{ password_padrao }}" -w /overleaf/services/web sharelatex-teste node -e '
+            const bcrypt = require("bcrypt");
+            const { MongoClient } = require("mongodb");
+            (async function() {
+              let client;
+              try {
+                const hash = await bcrypt.hash(process.env.TEMP_PASS, 10);
+                client = await MongoClient.connect("mongodb://mongo:27017/overleaf");
+                const db = client.db("overleaf");
+                const result = await db.collection("users").updateOne(
+                  { email: "{{ email_padrao }}" }, 
+                  { $set: { hashedPassword: hash } }
+                );
+                if (result.matchedCount === 0) {
+                  console.error("[ERRO] Utilizador nao encontrado.");
+                  process.exit(1);
+                }
+                console.log("[SUCESSO] Palavra-passe configurada.");
+              } catch(e) {
+                console.error("[ERRO] Falha no MongoDB:", e);
+                process.exit(1);
+              } finally {
+                if (client) await client.close();
+              }
+            })();'
+          register: injecao
+          until: injecao.rc == 0
+          retries: 5
+          delay: 10
