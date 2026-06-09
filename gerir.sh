@@ -86,12 +86,11 @@ while true; do
             fi
             
             # 3. Provisionamento do ambiente
-            if [ -d "$DIRETORIA" ] && [ -n "$(cd "$DIRETORIA" 2>/dev/null && sudo docker compose ps -a -q 2>/dev/null)" ]; then
+                        if [ -d "$DIRETORIA" ] && [ -n "$(cd "$DIRETORIA" 2>/dev/null && sudo docker compose ps -a -q 2>/dev/null)" ]; then
                 echo "[AVISO] O ambiente ja se encontra criado e configurado."
                 echo "[AVISO] Por favor, utilize a Opcao 2 para o iniciar."
             else
                 if [ -f "$PLAYBOOK" ]; then
-                    
                     echo ""
                     echo "[SEGURANCA] Vamos configurar a tua conta de Administrador."
                     ADMIN_EMAIL="admin@overleaf.pt"

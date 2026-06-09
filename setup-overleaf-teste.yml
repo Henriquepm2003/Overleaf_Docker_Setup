@@ -80,9 +80,8 @@
       command: docker exec sharelatex-teste grunt user:create-admin --email={{ email_padrao }}
       register: criacao
       until: criacao.rc == 0 or 'already exists' in criacao.stdout | default('') or 'already exists' in criacao.stderr | default('')
-      retries: 5
+      retries: 10
       delay: 10
-      ignore_errors: true
 
     - name: 6. Configurar a palavra-passe do administrador na base de dados
       tags: ['post-build']
