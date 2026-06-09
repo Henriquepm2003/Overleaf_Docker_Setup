@@ -2,6 +2,7 @@
 
 DIRETORIA="/opt/overleaf-teste"
 PLAYBOOK="setup-overleaf-teste.yml"
+DIRETORIA_ORIGINAL=$(pwd)
 
 # ----------------------------------------------------------------------
 # PROGRAMAÇÃO DEFENSIVA: Impedir a execução no disco do Windows (NTFS)
@@ -41,7 +42,7 @@ while true; do
     echo "5) Informacoes de Acesso (Link, Email e Diretorias)"
     echo "0) Sair"
     echo "========================================================================="
-    read -p "Opcao: " opcao 
+    read -p "Opcao: " opcao
 
     case $opcao in
         1)
@@ -114,7 +115,7 @@ while true; do
                     ORIGINAL_DIR=$(pwd)
                     
                     # PASSO 1: O Ansible prepara o Docker e os ficheiros em silêncio
-                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "pre-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                    if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "pre-build" --extra-vars "email_padrao=$ADMIN_EMAIL"; then
                         
                         # PASSO 2: O Bash assume o controlo para o "Show ao Vivo"
                         echo ""
@@ -131,7 +132,7 @@ while true; do
                             # PASSO 3: O Ansible regressa para arrancar tudo e injetar a password
                             echo ""
                             echo "[INFO] Build concluído com sucesso! A arrancar contentores e configurar a base de dados..."
-                            if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "post-build" --extra-vars "email_padrao=$ADMIN_EMAIL password_padrao=$ADMIN_PASS_ENV"; then
+                            if sudo -E ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook "$PLAYBOOK" --tags "post-build" --extra-vars "email_padrao=$ADMIN_EMAIL"; then
                                 
                                 clear
                                 echo "========================================================================"
@@ -172,6 +173,7 @@ while true; do
                 else
                     echo "[AVISO] Os contentores nao existem. Execute a Opcao 1."
                 fi
+                cd "$DIRETORIA_ORIGINAL"
             else
                 echo "[AVISO] Ambiente nao criado. Execute a Opcao 1."
             fi
@@ -184,6 +186,8 @@ while true; do
             else
                 echo "[AVISO] Nao existem contentores ativos para parar."
             fi
+
+            cd "$DIRETORIA_ORIGINAL"
             ;;
         4)
             if [ -d "$DIRETORIA" ]; then
@@ -209,6 +213,8 @@ while true; do
             else
                 echo "[AVISO] Ambiente ja removido ou nunca criado."
             fi
+
+            cd "$DIRETORIA_ORIGINAL"
             ;;
         5)
             clear

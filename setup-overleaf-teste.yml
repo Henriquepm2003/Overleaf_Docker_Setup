@@ -7,6 +7,7 @@
   vars:
     diretoria_teste: /opt/overleaf-teste
     porta_teste: "8085"
+    password_padrao: "{{ lookup('env', 'ADMIN_PASS_ENV') }}"
 
   roles:
     - role: geerlingguy.docker
@@ -38,7 +39,7 @@
                 interval: 10s
                 timeout: 10s
                 retries: 5
-                start_period: 20s 
+                start_period: 20s
             redis:
               image: redis:6
               restart: always
@@ -86,13 +87,13 @@
     - name: 6. Configurar a palavra-passe do administrador na base de dados
       tags: ['post-build']
       shell: >
-        docker exec -w /overleaf/services/web sharelatex-teste node -e '
+        docker exec -e TEMP_PASS="{{ password_padrao }}" -w /overleaf/services/web sharelatex-teste node -e '
         const bcrypt = require("bcrypt");
         const { MongoClient } = require("mongodb");
         (async function() {
           let client;
           try {
-            const hash = await bcrypt.hash("{{ password_padrao }}", 10);
+            const hash = await bcrypt.hash(process.env.TEMP_PASS, 10);
             client = await MongoClient.connect("mongodb://mongo:27017/overleaf");
             const db = client.db("overleaf");
             const result = await db.collection("users").updateOne(
