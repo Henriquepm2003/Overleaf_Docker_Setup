@@ -38,6 +38,7 @@ while true; do
     echo "2) Iniciar (Acorda os contentores adormecidos)"
     echo "3) Parar (Pausa os contentores, preservando o estado)"
     echo "4) Destruir (Remove contentores e/ou base de dados)"
+    echo "5) Informacoes de Acesso (Link, Email e Diretorias)"
     echo "0) Sair"
     echo "========================================================================="
     read -p "Opcao: " opcao 
@@ -208,6 +209,18 @@ while true; do
             else
                 echo "[AVISO] Ambiente ja removido ou nunca criado."
             fi
+            ;;
+        5)
+            clear
+            echo "========================================================================"
+            echo " [INFO] DADOS DE ACESSO AO OVERLEAF LOCAL "
+            echo "========================================================================"
+            echo " Link:          http://localhost:8085"
+            echo " Email Admin:   admin@overleaf.pt"
+            echo " Password:      [A password invisivel que definiste na Opcao 1]"
+            echo ""
+            echo " Diretoria de Dados (Backup): /opt/overleaf-teste/data"
+            echo "========================================================================"
             ;;
         0)
             echo "[INFO] A encerrar o gestor. Ate ja."
