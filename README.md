@@ -81,7 +81,7 @@ Como resolver em 5 segundos:
 
 Abre um terminal do WSL (Debian/Ubuntu).
 
-Escreve o comando: hostname -I (vai cuspir um número de IP, ex: 172.x.x.x).
+Escreve o comando: hostname -I (vai mostrar um número de IP, ex: 172.x.x.x).
 
 Copia o primeiro IP que aparecer.
 
