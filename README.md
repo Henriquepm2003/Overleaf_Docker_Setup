@@ -92,6 +92,6 @@ Escreve o comando: hostname -I (vai mostrar um número de IP, ex: 172.x.x.x).
 
 Copia o primeiro IP que aparecer.
 
-Vai ao teu browser e em vez de localhost, usa esse IP. Exemplo: http://172.25.10.5:8085.
+Vai ao teu browser e em vez de localhost, usa esse IP. Exemplo: http://172.10.10.10:8085.
 
 O teu Overleaf vai abrir instantaneamente!
