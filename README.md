@@ -73,6 +73,13 @@ Para gerires o estado do servidor no dia a dia, basta correr o ./gerir.sh e usar
 A quem estiver a ler isto: se quiseres correr a opção 4 e escolheres não eliminar a base de dados, o projeto está feito para resistir a esta opção. Foram utilizados volumes para prevenir que a base de dados ou algum container indo abaixo perca a memória.
 Se por alguma razão decidires eliminar a base de dados e ainda tiveres projetos críticos e importantes dentro do overleaf que não guardaste... boa sorte XD
 
+⚠️ Aviso Importante: Cópias de Segurança (Backups)
+Este projeto foi criado para facilitar a formatação e o desenvolvimento dos vossos relatórios. No entanto, é disponibilizado "tal como está". Como se trata de um ambiente local e imprevistos técnicos podem sempre acontecer, o autor não se responsabiliza por qualquer perda de dados ou falhas de acesso à plataforma.
+
+A regra de ouro é: nunca criem nem permitam um Single Point of Failure (ponto único de falha) para meses do vosso trabalho!
+Para garantirem que o vosso relatório está sempre seguro e não depende de uma única máquina, criem o hábito de fazer backups regulares:
+Cliquem em Menu (no canto superior esquerdo) e selecionem Source para descarregar um ficheiro .zip com todo o projeto atualizado.
+Guardem esse ficheiro noutro local físico ou na cloud (Google Drive, OneDrive, iCloud, ou numa pen drive) no final de cada dia de trabalho.
 
 Resolução de Problemas (Troubleshooting)
 Corri a instalação toda com sucesso, mas o link http://localhost:8085 não abre!
